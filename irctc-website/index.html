@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple IRCTC</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>IRCTC Ticket Booking</h1>
+    </header>
+    <main>
+        <section class="booking-form">
+            <h2>Book Your Ticket</h2>
+            <form id="ticketForm">
+                <label for="train">Train Name:</label>
+                <input type="text" id="train" name="train" placeholder="Enter train name" required>
+
+                <label for="from">From:</label>
+                <input type="text" id="from" name="from" placeholder="Source station" required>
+
+                <label for="to">To:</label>
+                <input type="text" id="to" name="to" placeholder="Destination station" required>
+
+                <label for="date">Travel Date:</label>
+                <input type="date" id="date" name="date" required>
+
+                <label for="passenger">Number of Passengers:</label>
+                <input type="number" id="passenger" name="passenger" min="1" max="10" required>
+
+                <button type="submit">Book Ticket</button>
+            </form>
+            <div id="responseMessage" class="response-message"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Simple IRCTC</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

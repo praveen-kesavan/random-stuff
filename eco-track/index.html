@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack - Habit Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>EcoTrack</h1>
+        <p>Your companion for sustainable living</p>
+    </header>
+    <main>
+        <h2>Habit Tracker</h2>
+        <form id="habit-form">
+            <label for="habit">New Habit:</label>
+            <input type="text" id="habit" name="habit" placeholder="E.g., Use reusable bags" required>
+            <button type="submit">Add Habit</button>
+        </form>
+        <ul id="habit-list"></ul>
+        <button id="undo" style="display: none;">Undo</button>
+        <p id="message" style="display: none;">Great job! Keep it up!</p>
+    </main>
+    <footer>
+        <p>EcoTrack © 2024</p>
+    </footer>
+    <script src="app.js" defer></script>
+</body>
+</html>
