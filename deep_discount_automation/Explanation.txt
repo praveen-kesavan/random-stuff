@@ -1,0 +1,222 @@
+I will give an offer ID store it as primaryOfferID, hit the offer search end point in stage with that offer. Response has the offer construct of the offer. Now check for discounted_skus array. Pick each individual SKUs in the array and execute the below script. Also store this construct,i.e the object inside the offer array as primaryOffer for future references.
+
+I want a python script for hitting two different offer search api using each skus, lets call each sku as skuInContention from above response in the request payload, one is for Stage env and other is for prod env, and store their responses as listOfStgOffers and listOfProdOffers. 
+
+Response is an array of object where each object is an offer construct which has the offer ID, offer name and other details of the offer. 
+
+Now I want to eliminate the duplicate offer constructs, that is the ones present in both stage and Prod, this gives me a bunch of offer constructs as offersList. 
+
+i also want to store the offer IDs of offer constructs present just in Prod response and not in Stage as notInStg. 
+
+Now from the constructs in offersList, check these offer payloads, if the skuInContention is present in discounted_skus array of the offers Ids. If yes consider those offer, if no remove those offers contructs from the offersList.
+
+Now check if primaryOfferID is present under non_stackable_offer_ids array in any of the other offer constructs in offersList, if yes then remove that offer construct from offersList
+
+Now check the primaryOffer for the non_stackable_offer_ids array, take all the offer Ids in that array and check in offersList, if any offer construct has that offer id as the offer_id then remove that offer construct from offersList. This check has to happen for each offer ID present in non_stackable_offer_ids array of primaryOffer object
+
+Now we've got the finalOffersList, I want the offer_id, offer_name, type, channel, value and type(inside discount_description) coupon_code_triggered, trigger_tags, concurrent, apply_mode, applicable_sites[](populate all in one cell if multiple), restricted_skus[](populate all in one cell if multiple) fields from each offer construct in finalOffersList as a column in an excel sheet, name that sheet with the skuInContention
+
+In discount discount_description there might be multiple objects which has value and type, but pick the object which has the skuInContention for populating in the excel sheet
+
+Now move to next SKU in the primaryOfferID discounted_skus array, that sku becomes the skuInContention now. Do this for all the skus in discounted_skus array, even if there are multiple discounted_skus array in primaryOffer.
+
+After creating a sheet for each skus in an excel document(name must the primaryOfferID), take all the discounted_skus primaryOffer, hit fetch-current-price api in Stage with all the skus in the skus array of the request payload and "store_type": "B2C".
+
+Each object in the response array is for a particular sku.
+
+Create a new excel sheet, it must be first sheet of the primaryOfferID named excel document, first column is titled SKUs, contains all the SKU ID in each row
+
+Next is MSRP price column which has its msrp_price value from its respective fetch-current-price api response, like wise populate Sale price from sale_price value from fetch-current-price response for that particular SKU
+
+Now hit the fetch-current-price api with same set of SKUs,"store_type": "B2C" and then with site_id as "3155000" and then with SKUs, "store_type": "B2C" and site_id as "4789760940"
+
+Now each SKU object will have entity_discounts array, which has discount object. Create a new column as SEA EPP for 3155000 and General EPP for 4789760940 and store the values of discount.type and discount.value as sub columns
+
+Now fetch the Offer IDs from each SKU's sheet and populate the Offer ID and its respective value and type(inside discount_description) as sub columns for the respective SKU's row. Each offer column will be titled as Offer 1, Offer 2....
+
+Also note that fetch-current-price api can be hit max of 50 SKU IDs only in the SKUs array, so if total discounted_skus SKUs are greater than 50, then chunk them to 50 or less before creating the api payload and cumulate the responses like mentioned above in the excel sheet
+
+Name this sheet as Aggregation
+
+Offer search endpoint:
+Stage : https://us.ecom-stg.samsung.com/v4/price-engine/offers/_search
+Prod : https://us.ecom.samsung.com/v4/price-engine/offers/_search
+
+fetch-current-price endpoint:
+Stage : https://us.ecom-stg.samsung.com/v4/price-engine/product-pricing/_fetch-current-price
+
+
+
+Sample cURLs:
+Offer Search with Offer ID:
+curl --location 'https://us.ecom-stg.samsung.com/v4/price-engine/offers/_search' \
+--header 'content-type: application/json' \
+--header 'Cookie: ecom_session_id_USA=M2E0ZWFkNmYtMzJhNy00NTE2LThhODYtZGE3YmZmMTI3NDRj; ecom_vi_USA=Y2U1YzkyNzUtZTZlMy00MDVkLWIwYzctODBmMzg5MTg3ZThi' \
+--data '{
+    "offer_ids": ["1760631851307"]
+}'
+
+
+Offer Search with SKU ID:
+curl --location 'https://us.ecom-stg.samsung.com/v4/price-engine/offers/_search' \
+--header 'content-type: application/json' \
+--header 'Cookie: ecom_session_id_USA=M2E0ZWFkNmYtMzJhNy00NTE2LThhODYtZGE3YmZmMTI3NDRj; ecom_vi_USA=Y2U1YzkyNzUtZTZlMy00MDVkLWIwYzctODBmMzg5MTg3ZThi' \
+--data '{
+    "skus": [
+                "HW-Q990D/ZA"
+              ],
+     "filter_current_offers": true  
+    }'
+
+
+Fetch current price without site Id:
+
+curl --location 'https://us.ecom-stg.samsung.com/v4/price-engine/product-pricing/_fetch-current-price' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: ecom_session_id_USA=M2E0ZWFkNmYtMzJhNy00NTE2LThhODYtZGE3YmZmMTI3NDRj; ecom_vi_USA=Y2U1YzkyNzUtZTZlMy00MDVkLWIwYzctODBmMzg5MTg3ZThi' \
+--data '{
+    "sku": [
+            "HW-Q990D/ZA",
+            "SM-F946ULBEXAA"
+          ],
+    "store_type": "B2C"
+    }'
+
+Fetch current price with site Id:
+
+curl --location 'https://us.ecom-stg.samsung.com/v4/price-engine/product-pricing/_fetch-current-price' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: ecom_session_id_USA=M2E0ZWFkNmYtMzJhNy00NTE2LThhODYtZGE3YmZmMTI3NDRj; ecom_vi_USA=Y2U1YzkyNzUtZTZlMy00MDVkLWIwYzctODBmMzg5MTg3ZThi' \
+--data '{
+    "sku": [
+            "HW-Q990D/ZA",
+            "SM-F946ULBEXAA"
+          ],
+    "store_type": "B2C",
+    "site_id": "3155000"
+    }'
+
+Sample Excel document Path : /home/ecom-praveenk7/deep-discount-automation/Sample_Excel_Doc.xlsx
+
+Read the sample excel document before writing code for excel creation.
+
+I've identified some logic gaps, make changes according to the below explanations
+1. While comparing stage and Prod offers, take offers ids of each offer construct in prod response and store them as prodOfferIds, do the same for stage and store them as stgOfferIds. Now check if all the elements present in prodOfferIds is present in stgOfferIds. The ones not present in stgOfferIds, add in not_in_stg and then use it to print in the last.
+
+2. further validations we do, we will only use the response from stage offer search endpoint. So just ignore the prod offer search response after previous step.
+
+3. Now in stage offer search response like previously mentioned, it has offer constructs of various offer as array of object. Store them properly so the we can fetch data from them again and again.
+
+4. Further we will check the non stackability, here we should fetch the data from offer_id_restriction.non_stackable_offer_ids. Its an array where each element is an offer ID. Below is the example
+ "offer_id_restriction": {
+                "non_stackable_offer_ids": [
+                    "1745885730649",
+                    "1752516728642",
+                    "1752519281601"
+                ]
+            },
+
+5. Now we take each offer ID in the non_stackable_offer_ids array of the primary offer construct and search if its present in stg_offers as a value for "offer_id" for any of the offer constructs, if yes then remove that offer construct from the array. Like wise do for each offer id in non_stackable_offer_ids array of the primary offer construct. Then we take the primary offer id and search if its present in offer_id_restriction.non_stackable_offer_ids array of any of the offer construct in stage, if yes then remove that particular offer construct from the array. This is how non stackablity must be checked.
+
+6.Add logs for the non stackable checks, so that it can be debugged effectively.
+
+7. for fetching the offer name, look for "name" field in each offer construct.
+
+8. Add "channel", "exclude_ir", "exclude_epp" as columns in the sheets for each SKUs and populate them with its respective values in each offer as well.
+
+9. getting "'list' object has no attribute 'get'" error while processing the chunk in fetch current price response. So adding an example of the api response below, so it can be processed and fetched effectively. Add logs for them as well.
+
+[
+    {
+        "sku": "HW-Q990D/ZA",
+        "type": "B2C",
+        "min_price": {
+            "value": 1496.99,
+            "currency": "USD"
+        },
+        "list_price": {
+            "value": 1999.99,
+            "currency": "USD"
+        },
+        "msrp_price": {
+            "value": 1999.99,
+            "currency": "USD"
+        },
+        "sale_price": {
+            "value": 688.99,
+            "currency": "USD"
+        },
+        "valid_from": "2025-10-24T04:00:00.000Z",
+        "min_epp_price": {
+            "value": 685.99,
+            "currency": "USD"
+        },
+        "expiry_date": "2025-10-31T19:51:21.204Z",
+        "entity_discounts": [
+            {
+                "status": "Published",
+                "criteria": {
+                    "entity_id": "3844",
+                    "store_type": "All",
+                    "entity_type": "EppGroup"
+                },
+                "discount": {
+                    "type": "AmountTo",
+                    "value": 688.99
+                },
+                "valid_from": "2025-10-31T04:00:00.000Z"
+            }
+        ],
+        "sales_pitch": [
+            "Price includes $1311 instant savings - 66% off. Limited time only."
+        ],
+        "sales_pitch_icon": "clock"
+    },
+    {
+        "sku": "SM-F946ULBEXAA",
+        "type": "B2C",
+        "min_price": {
+            "value": 1439.99,
+            "currency": "USD"
+        },
+        "list_price": {
+            "value": 1919.99,
+            "currency": "USD"
+        },
+        "msrp_price": {
+            "value": 1919.99,
+            "currency": "USD"
+        },
+        "sale_price": {
+            "value": 1439.99,
+            "currency": "USD"
+        },
+        "valid_from": "2024-09-27T04:00:00.000Z",
+        "min_epp_price": {
+            "value": 1055.99,
+            "currency": "USD"
+        },
+        "expiry_date": "2025-10-31T20:13:02.233Z",
+        "entity_discounts": [
+            {
+                "status": "Published",
+                "criteria": {
+                    "entity_id": "3844",
+                    "store_type": "All",
+                    "entity_type": "EppGroup"
+                },
+                "discount": {
+                    "type": "Percentage",
+                    "value": 25
+                },
+                "valid_from": "2025-10-31T04:00:00.000Z"
+            }
+        ],
+        "sales_pitch": [
+            "Price includes $480 instant savings - 25% off. Limited time only."
+        ],
+        "sales_pitch_icon": "clock"
+    }
+]
+
+
