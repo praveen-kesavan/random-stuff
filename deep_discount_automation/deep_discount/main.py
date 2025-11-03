@@ -97,9 +97,9 @@ def main(primary_offer_id: str):
     
     print("\n=== Processing Pricing Data ===")
     # Process pricing data in chunks
-    all_regular_price_data = {'result': []}
-    all_sea_epp_data = {'result': []}
-    all_general_epp_data = {'result': []}
+    all_regular_price_data = []
+    all_sea_epp_data = []
+    all_general_epp_data = []
     print("Initialized price data containers")
     
     sku_chunks = list(chunk_list(processor.discounted_skus, MAX_SKUS_PER_REQUEST))
@@ -111,9 +111,21 @@ def main(primary_offer_id: str):
             regular, sea_epp, general_epp = fetch_price_data(client, sku_chunk)
             print(f"Successfully fetched price data for chunk {i}")
             
-            all_regular_price_data['result'].extend(regular.get('result', []))
-            all_sea_epp_data['result'].extend(sea_epp.get('result', []))
-            all_general_epp_data['result'].extend(general_epp.get('result', []))
+            # API returns a list directly, not wrapped in a 'result' object
+            if isinstance(regular, list):
+                all_regular_price_data.extend(regular)
+            else:
+                all_regular_price_data.extend(regular.get('result', []))
+                
+            if isinstance(sea_epp, list):
+                all_sea_epp_data.extend(sea_epp)
+            else:
+                all_sea_epp_data.extend(sea_epp.get('result', []))
+                
+            if isinstance(general_epp, list):
+                all_general_epp_data.extend(general_epp)
+            else:
+                all_general_epp_data.extend(general_epp.get('result', []))
         except Exception as e:
             print(f"Error processing chunk {i}: {str(e)}")
             continue

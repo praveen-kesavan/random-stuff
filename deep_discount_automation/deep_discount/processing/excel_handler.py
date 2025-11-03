@@ -174,8 +174,7 @@ class ExcelHandler:
                 }
         return {}
 
-    @staticmethod
-    def _get_sku_price_info(price_data: List[Dict], sku: str) -> Dict:
+    def _get_sku_price_info(self, price_data: List[Dict], sku: str) -> Dict:
         """Extract price information for a specific SKU from the price data response.
         
         Args:
@@ -219,8 +218,9 @@ class ExcelHandler:
                 }
                 
         print(f"No price info found for SKU: {sku}")
-        return {}    @staticmethod
-    def _get_epp_discount(epp_data: List[Dict], sku: str) -> Dict:
+        return {}
+
+    def _get_epp_discount(self, epp_data: List[Dict], sku: str) -> Dict:
         """Extract EPP discount information for a specific SKU.
         
         Args:
