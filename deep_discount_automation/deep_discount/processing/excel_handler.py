@@ -2,7 +2,7 @@
 
 import pandas as pd
 from typing import Dict, List
-from deep_discount import config
+import config
 
 class ExcelHandler:
     def __init__(self, filename: str):
@@ -35,13 +35,14 @@ class ExcelHandler:
                 'name': offer.get('name'),  # Using 'name' field directly
                 'type': offer.get('type'),
                 'channel': offer.get('channel'),
-                'exclude_ir': offer.get('exclude_ir'),  # Added new field
-                'exclude_epp': offer.get('exclude_epp'),  # Added new field
+                'exclude_ir': offer.get('exclude_ir'),  
+                'exclude_epp': offer.get('exclude_epp'), 
                 'coupon_code_triggered': offer.get('coupon_code_triggered'),
                 'trigger_tags': ','.join(offer.get('trigger_tags', [])) if offer.get('trigger_tags') else '',
                 'concurrent': offer.get('concurrent'),
                 'apply_mode': offer.get('apply_mode'),
                 'applicable_sites': ','.join(str(site) for site in offer.get('applicable_sites', [])) if offer.get('applicable_sites') else '',
+                'exclude_sites': ','.join(str(site) for site in offer.get('exclude_sites', [])) if offer.get('exclude_sites') else '',
                 'restricted_skus': ','.join(offer.get('restricted_skus', [])) if offer.get('restricted_skus') else ''
             }
             

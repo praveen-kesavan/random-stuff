@@ -3,7 +3,7 @@
 import json
 import requests
 from typing import Dict, List, Optional
-from deep_discount import config
+import config
 
 class APIClient:
     def __init__(self):

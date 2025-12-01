@@ -2,10 +2,10 @@
 
 import os
 from typing import List, Dict
-from deep_discount.api.client import APIClient
-from deep_discount.processing.offer_processor import OfferProcessor
-from deep_discount.processing.excel_handler import ExcelHandler
-from deep_discount.config import MAX_SKUS_PER_REQUEST, SITE_ID_SEA_EPP, SITE_ID_GENERAL_EPP
+from api.client import APIClient
+from processing.offer_processor import OfferProcessor
+from processing.excel_handler import ExcelHandler
+from config import MAX_SKUS_PER_REQUEST, SITE_ID_SEA_EPP, SITE_ID_GENERAL_EPP
 
 def chunk_list(lst: List, chunk_size: int) -> List[List]:
     """Split a list into chunks of specified size."""
